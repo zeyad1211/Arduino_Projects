@@ -32,20 +32,20 @@ void setMotor(int dir, int pwmVal, int pwm, int in1, int in2){
 }
 void goToPos(int position){
   if(position > pos){
-  	digitalWrite(IN1, HIGH);
-    digitalWrite(IN2, LOW);
+  	digitalWrite(IN1, LOW);
+    digitalWrite(IN2, HIGH);
     int start = millis();
     while(pos < position){
       Serial.println("GOING TO POS");
     }
     int finishTime = millis() - start;
-    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, LOW);
     Serial.print("Finished in: ");
     Serial.println(finishTime);
   }
   else if(position < pos){
-  	digitalWrite(IN1, LOW);
-    digitalWrite(IN2, HIGH);
+  	digitalWrite(IN1, HIGH);
+    digitalWrite(IN2, LOW);
   }
   else{
   	digitalWrite(IN1, LOW);
@@ -53,34 +53,56 @@ void goToPos(int position){
   }
 }
 
+
 void setup()
 {
   Serial.begin(9600);
   pinMode(ENCA, INPUT_PULLUP);
   pinMode(ENCB, INPUT_PULLUP);
   pinMode(PWM, OUTPUT);
+  analogWrite(PWM, 180);
   //attachInterrupt(digitalPinToInterrupt(pinum), functionToCall, triggerType
   attachInterrupt(digitalPinToInterrupt(ENCA), readEncoder, RISING);
   
 
 }
-
+float checkSpeed(int ms)
+{
+  float speed;
+  float timeInSec = ms/1000;
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  int start = millis();
+  while(millis()-start < ms){
+  	Serial.println("running");
+  }
+  digitalWrite(IN1, LOW);
+  Serial.println(pos);
+  speed = float(pos/timeInSec)*float(60.0/225.0);
+  return speed;
+  
+}
 void loop()
 {
-//  int a = digitalRead(ENCA);
- // int b = digitalRead(ENCB);
+  int a = digitalRead(ENCA);
+  int b = digitalRead(ENCB);
  // Serial.print(a);
 //Serial.print(" ");
  // Serial.print(b);
- // Serial.println();
-   Serial.println(pos);
+//  Serial.println();
+  // Serial.println(pos);
 //  int time = millis();
- // setMotor(1, 20, PWM, IN1, IN2);
+// setMotor(1, 20, PWM, IN1, IN2);
 //  if(time >= 1000){
   //	Serial.print("second completed: ");
     //Serial.println(pos);
-  	goToPos(180);
-  	delay(1000);
+  //	goToPos(180);
+  //	delay(1000);
+ float RevPerMin;
+ RevPerMin = checkSpeed(10000);
   
+ Serial.print("the speed of the motor in RPM is: ");
+ Serial.println(RevPerMin);
+ delay(5000);
   //}
 }
